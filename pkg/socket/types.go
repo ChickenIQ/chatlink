@@ -16,7 +16,7 @@ type Socket struct {
 
 type SockerHandler interface {
 	HandleSignedMessage(msg proto.SignedMessage)
+	HandleDisconnect(reason proto.Disconnect)
 	HandleBotInfo(bots []proto.BotInfo)
-	HandleKicked(reason proto.Kicked)
 	HandleMessage(msg proto.Message)
 }

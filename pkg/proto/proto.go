@@ -7,7 +7,7 @@ import (
 func NewPacket(packetType PacketType, id int8, payload []byte) (*Packet, error) {
 	p := &Packet{
 		PacketType: packetType,
-		Id:         id,
+		ID:         id,
 		Len:        uint16(len(payload)),
 	}
 

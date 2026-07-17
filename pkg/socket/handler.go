@@ -12,19 +12,19 @@ func (s *Socket) handlePacket(p *proto.Packet) error {
 	switch p.PacketType {
 	case proto.PacketMessage:
 		s.handler.HandleMessage(proto.Message{
-			ID:      p.Id,
+			ID:      p.ID,
 			Content: string(p.Payload[:p.Len]),
 		})
 
 	case proto.PacketSignedMessage:
 		s.handler.HandleSignedMessage(proto.SignedMessage{
-			ID:      p.Id,
+			ID:      p.ID,
 			Content: string(p.Payload[:p.Len]),
 		})
 
-	case proto.PacketKicked:
-		s.handler.HandleKicked(proto.Kicked{
-			ID:      p.Id,
+	case proto.PacketDisconnect:
+		s.handler.HandleDisconnect(proto.Disconnect{
+			ID:      p.ID,
 			Content: string(p.Payload[:p.Len]),
 		})
 

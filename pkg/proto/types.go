@@ -11,12 +11,11 @@ const (
 	PacketStop
 	PacketDisconnect
 	PacketSignedMessage
-	PacketKicked
 )
 
 type Packet struct {
 	PacketType PacketType
-	Id         int8
+	ID         int8
 	Len        uint16
 	Payload    [MaxPayloadSize]byte
 }
@@ -27,6 +26,6 @@ type Output struct {
 }
 
 type SignedMessage Output
+type Disconnect Output
 type Message Output
 type BotInfo Output
-type Kicked Output

@@ -13,26 +13,26 @@ import (
 
 type Ev struct{}
 
-func (*Ev) HandleBotInfo(usernames []proto.BotInfo) {
-	fmt.Printf("Bot Info:\n")
-	for _, bot := range usernames {
-		fmt.Printf("[%d], Username: %s\n", bot.ID, bot.Content)
+func (*Ev) HandleBotInfo(bots []proto.BotInfo) {
+	fmt.Printf("Bots:\n")
+	for _, bot := range bots {
+		fmt.Printf("[%d] Username: %s\n", bot.ID, bot.Content)
 	}
 }
 
 func (*Ev) HandleSignedMessage(msg proto.SignedMessage) {
-	fmt.Printf("Signed Message: [%d]: %s\n", msg.ID, msg.Content)
+	fmt.Printf("[%d] Signed Message: %s\n", msg.ID, msg.Content)
 }
 
 func (*Ev) HandleMessage(msg proto.Message) {
-	fmt.Printf("Message: [%d]: %s\n", msg.ID, msg.Content)
+	fmt.Printf("[%d] Message: %s\n", msg.ID, msg.Content)
 }
 
-func (*Ev) HandleKicked(reason proto.Kicked) {
-	fmt.Printf("[%d] Kicked: %s\n", reason.ID, reason.Content)
+func (*Ev) HandleDisconnect(reason proto.Disconnect) {
+	fmt.Printf("[%d] Disconnected: %s\n", reason.ID, reason.Content)
 }
 
-func fromStdin(s *socket.Socket) {
+func handleStdin(s *socket.Socket) {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -80,5 +80,5 @@ func main() {
 		os.Exit(0)
 	}()
 
-	fromStdin(sock)
+	handleStdin(sock)
 }
