@@ -11,6 +11,7 @@ const (
 	PacketStop
 	PacketDisconnect
 	PacketSignedMessage
+	PacketKicked
 )
 
 type Packet struct {
@@ -28,3 +29,4 @@ type Output struct {
 type SignedMessage Output
 type Message Output
 type BotInfo Output
+type Kicked Output

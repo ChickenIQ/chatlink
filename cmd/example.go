@@ -28,6 +28,10 @@ func (*Ev) HandleMessage(msg proto.Message) {
 	fmt.Printf("Message: [%d]: %s\n", msg.ID, msg.Content)
 }
 
+func (*Ev) HandleKicked(reason proto.Kicked) {
+	fmt.Printf("[%d] Kicked: %s\n", reason.ID, reason.Content)
+}
+
 func fromStdin(s *socket.Socket) {
 	scanner := bufio.NewScanner(os.Stdin)
 

@@ -22,24 +22,31 @@ func (s *Socket) handlePacket(p *proto.Packet) error {
 			Content: string(p.Payload[:p.Len]),
 		})
 
+	case proto.PacketKicked:
+		s.handler.HandleKicked(proto.Kicked{
+			ID:      p.Id,
+			Content: string(p.Payload[:p.Len]),
+		})
+
 	case proto.PacketBotInfo:
 		if int(p.Len)%proto.MaxUsernameSize != 0 {
-			return fmt.Errorf("invalid payload length")
+			return fmt.Errorf("invalid bot info payload length: %d", p.Len)
 		}
 
-		if int(p.Len)/proto.MaxUsernameSize > 255 {
-			return fmt.Errorf("too many usernames")
+		count := int(p.Len) / proto.MaxUsernameSize
+		if count > 127 {
+			return fmt.Errorf("too many usernames: %d", count)
 		}
 
-		var id int8 = 1
-		var bots []proto.BotInfo
-		for i := 0; i < int(p.Len); i += proto.MaxUsernameSize {
-			usernameBytes := p.Payload[i : i+proto.MaxUsernameSize]
-			bots = append(bots, proto.BotInfo{
-				ID:      id,
-				Content: strings.TrimRight(string(usernameBytes), "\x00"),
-			})
-			id++
+		bots := make([]proto.BotInfo, count)
+		for i := range bots {
+			start := i * proto.MaxUsernameSize
+			username := p.Payload[start : start+proto.MaxUsernameSize]
+
+			bots[i] = proto.BotInfo{
+				ID:      int8(i + 1),
+				Content: strings.TrimRight(string(username), "\x00"),
+			}
 		}
 
 		s.handler.HandleBotInfo(bots)
