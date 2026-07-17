@@ -21,7 +21,7 @@ type Packet struct {
 }
 
 type Output struct {
-	ID      uint8
+	ID      int8
 	Content string
 }
 

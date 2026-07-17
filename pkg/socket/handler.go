@@ -12,13 +12,13 @@ func (s *Socket) handlePacket(p *proto.Packet) error {
 	switch p.PacketType {
 	case proto.PacketMessage:
 		s.handler.HandleMessage(proto.Message{
-			ID:      uint8(p.Id),
+			ID:      p.Id,
 			Content: string(p.Payload[:p.Len]),
 		})
 
 	case proto.PacketSignedMessage:
 		s.handler.HandleSignedMessage(proto.SignedMessage{
-			ID:      uint8(p.Id),
+			ID:      p.Id,
 			Content: string(p.Payload[:p.Len]),
 		})
 
@@ -31,7 +31,7 @@ func (s *Socket) handlePacket(p *proto.Packet) error {
 			return fmt.Errorf("too many usernames")
 		}
 
-		var id uint8 = 1
+		var id int8 = 1
 		var bots []proto.BotInfo
 		for i := 0; i < int(p.Len); i += proto.MaxUsernameSize {
 			usernameBytes := p.Payload[i : i+proto.MaxUsernameSize]
