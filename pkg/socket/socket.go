@@ -18,9 +18,7 @@ func NewSocket(opts ...Option) (*Socket, error) {
 	}
 
 	for _, opt := range opts {
-		if opt != nil {
-			opt(sock)
-		}
+		opt(sock)
 	}
 
 	if err := os.Remove(sock.path); err != nil && !os.IsNotExist(err) {
