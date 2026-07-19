@@ -3,20 +3,19 @@ package socket
 import (
 	"net"
 	"sync"
+	"time"
 
 	"github.com/chickeniq/chatlink/pkg/proto"
 )
 
 type Socket struct {
-	handler  SockerHandler
+	mu       sync.Mutex
+	timeout  time.Duration
 	listener net.Listener
 	conn     net.Conn
-	sync.Mutex
-}
 
-type SockerHandler interface {
-	HandleSignedMessage(msg proto.SignedMessage)
-	HandleDisconnect(reason proto.Disconnect)
-	HandleBotInfo(bots []proto.BotInfo)
-	HandleMessage(msg proto.Message)
+	signedMessageHandlers []func(proto.SignedMessage)
+	disconnectHandlers    []func(proto.Disconnect)
+	botInfoHandlers       []func([]proto.BotInfo)
+	messageHandlers       []func(proto.Message)
 }

@@ -6,15 +6,12 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"github.com/chickeniq/chatlink/pkg/proto"
 )
 
-func NewSocket(socketPath string, handler SockerHandler) (*Socket, error) {
-	if handler == nil {
-		return nil, fmt.Errorf("event handler cannot be nil")
-	}
-
+func NewSocket(socketPath string, options ...Option) (*Socket, error) {
 	if err := os.Remove(socketPath); err != nil && !os.IsNotExist(err) {
 		return nil, fmt.Errorf("failed to remove existing socket file: %w", err)
 	}
@@ -24,29 +21,37 @@ func NewSocket(socketPath string, handler SockerHandler) (*Socket, error) {
 		return nil, err
 	}
 
-	s := &Socket{
+	sock := &Socket{
+		timeout:  15 * time.Second,
 		listener: listener,
-		handler:  handler,
-		conn:     nil,
+	}
+
+	for _, option := range options {
+		if option != nil {
+			option(sock)
+		}
 	}
 
 	go func() {
 		for {
-			conn, err := s.listener.Accept()
+			conn, err := listener.Accept()
 			if err != nil {
 				return
 			}
 
-			s.setConn(conn)
-			s.acceptConn(conn)
+			if err := sock.setConn(conn); err != nil {
+				return
+			}
+
+			sock.acceptConn(conn)
 		}
 	}()
 
-	return s, nil
+	return sock, nil
 }
 
 func (s *Socket) acceptConn(conn net.Conn) {
-	defer s.closeConn()
+	defer s.closeConn(conn)
 
 	for {
 		p := proto.Packet{}
@@ -55,36 +60,9 @@ func (s *Socket) acceptConn(conn net.Conn) {
 			return
 		}
 
-		if int(p.Len) > proto.MaxPayloadSize {
-			log.Printf("Paylod too big")
-			return
-		}
-
 		if err := s.handlePacket(&p); err != nil {
 			log.Println(err)
 			return
 		}
 	}
-}
-
-func (s *Socket) closeConn() {
-	s.Lock()
-	defer s.Unlock()
-	if s.conn == nil {
-		return
-	}
-
-	s.conn.Close()
-	s.conn = nil
-}
-
-func (s *Socket) setConn(conn net.Conn) {
-	s.Lock()
-	defer s.Unlock()
-	s.conn = conn
-}
-
-func (s *Socket) Close() error {
-	s.closeConn()
-	return s.listener.Close()
 }
