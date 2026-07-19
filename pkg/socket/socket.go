@@ -11,25 +11,25 @@ import (
 	"github.com/chickeniq/chatlink/pkg/proto"
 )
 
-func NewSocket(socketPath string, options ...Option) (*Socket, error) {
-	if err := os.Remove(socketPath); err != nil && !os.IsNotExist(err) {
+func NewSocket(opts ...Option) (*Socket, error) {
+	sock := &Socket{
+		path:    "/tmp/chatlink.sock",
+		timeout: 15 * time.Second,
+	}
+
+	for _, opt := range opts {
+		if opt != nil {
+			opt(sock)
+		}
+	}
+
+	if err := os.Remove(sock.path); err != nil && !os.IsNotExist(err) {
 		return nil, fmt.Errorf("failed to remove existing socket file: %w", err)
 	}
 
-	listener, err := net.Listen("unix", socketPath)
+	listener, err := net.Listen("unix", sock.path)
 	if err != nil {
 		return nil, err
-	}
-
-	sock := &Socket{
-		timeout:  15 * time.Second,
-		listener: listener,
-	}
-
-	for _, option := range options {
-		if option != nil {
-			option(sock)
-		}
 	}
 
 	go func() {

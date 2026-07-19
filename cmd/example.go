@@ -65,13 +65,14 @@ func handleStdin(s *socket.Socket) {
 func main() {
 	opts := []socket.Option{
 		socket.WithSignedMessageHandler(handleSignedMessage),
+		socket.WithSocketPath("/tmp/chatlink.sock"),
 		socket.WithDisconnectHandler(handleDisconnect),
 		socket.WithMessageHandler(handleMessage),
 		socket.WithBotInfoHandler(handleBotInfo),
 		socket.WithTimeout(15 * time.Second),
 	}
 
-	sock, err := socket.NewSocket("/tmp/guildlink.sock", opts...)
+	sock, err := socket.NewSocket(opts...)
 	if err != nil {
 		fmt.Println("Error creating socket:", err)
 		return

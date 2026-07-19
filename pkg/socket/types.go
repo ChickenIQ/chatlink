@@ -9,10 +9,11 @@ import (
 )
 
 type Socket struct {
-	mu       sync.Mutex
 	timeout  time.Duration
 	listener net.Listener
+	mu       sync.Mutex
 	conn     net.Conn
+	path     string
 
 	signedMessageHandlers []func(proto.SignedMessage)
 	disconnectHandlers    []func(proto.Disconnect)
