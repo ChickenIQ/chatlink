@@ -17,6 +17,9 @@ func (s *Socket) SendPacket(message *proto.Packet) error {
 		return fmt.Errorf("payload too large: %d", message.Len)
 	}
 
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
 	s.mu.Lock()
 	conn := s.conn
 	s.mu.Unlock()

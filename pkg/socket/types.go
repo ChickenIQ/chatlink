@@ -11,6 +11,7 @@ import (
 type Socket struct {
 	timeout  time.Duration
 	listener net.Listener
+	writeMu  sync.Mutex
 	mu       sync.Mutex
 	conn     net.Conn
 	path     string

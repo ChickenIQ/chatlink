@@ -1,53 +1,47 @@
 package socket
 
 import (
-	"fmt"
 	"net"
 )
 
-func (s *Socket) Close() {
-	s.closeListener()
-
+func (s *Socket) setConn(conn net.Conn) error {
 	s.mu.Lock()
-	conn := s.conn
-	s.mu.Unlock()
+	defer s.mu.Unlock()
+	if s.listener != nil {
+		s.conn = conn
+		return nil
+	}
 
-	s.closeConn(conn)
+	if conn != nil {
+		conn.Close()
+	}
+
+	return net.ErrClosed
 }
 
 func (s *Socket) closeConn(conn net.Conn) {
 	s.mu.Lock()
+	defer s.mu.Unlock()
 	if s.conn == conn {
 		s.conn = nil
 	}
-	s.mu.Unlock()
 
 	if conn != nil {
 		conn.Close()
 	}
 }
 
-func (s *Socket) closeListener() {
+func (s *Socket) Close() {
 	s.mu.Lock()
-	listener := s.listener
-	s.listener = nil
-	s.mu.Unlock()
+	defer s.mu.Unlock()
 
-	if listener != nil {
-		listener.Close()
-	}
-}
-
-func (s *Socket) setConn(conn net.Conn) error {
-	s.mu.Lock()
-	if s.listener == nil {
-		s.mu.Unlock()
-		conn.Close()
-		return fmt.Errorf("listener is nil")
+	if s.listener != nil {
+		s.listener.Close()
+		s.listener = nil
 	}
 
-	s.conn = conn
-	s.mu.Unlock()
-
-	return nil
+	if s.conn != nil {
+		s.conn.Close()
+		s.conn = nil
+	}
 }

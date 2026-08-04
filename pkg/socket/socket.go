@@ -30,6 +30,7 @@ func NewSocket(opts ...Option) (*Socket, error) {
 		return nil, err
 	}
 
+	sock.listener = listener
 	go func() {
 		for {
 			conn, err := listener.Accept()
