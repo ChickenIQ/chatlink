@@ -17,6 +17,10 @@ func (s *Socket) SendPacket(message *proto.Packet) error {
 		return fmt.Errorf("payload too large: %d", message.Len)
 	}
 
+	if message.PacketType == proto.PacketBotInfo {
+		return fmt.Errorf("[%d] packet cannot be used outbound", message.PacketType)
+	}
+
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()
 
