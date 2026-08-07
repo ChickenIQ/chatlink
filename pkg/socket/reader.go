@@ -12,6 +12,10 @@ func (s *Socket) handlePacket(p *proto.Packet) error {
 		return fmt.Errorf("[%d] payload too large: %d", p.PacketType, p.Len)
 	}
 
+	if p.ID < 0 {
+		return fmt.Errorf("[%d] inbound packets cannot be negative: %d", p.PacketType, p.ID)
+	}
+
 	payload := p.Payload[:int(p.Len)]
 	output := proto.Output{ID: p.ID, Content: string(payload)}
 
