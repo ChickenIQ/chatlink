@@ -2,6 +2,7 @@ package socket
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -55,7 +56,9 @@ func (s *Socket) acceptConn(conn net.Conn) {
 	for {
 		p := proto.Packet{}
 		if err := binary.Read(conn, binary.LittleEndian, &p); err != nil {
-			log.Println("Error while reading from the socket", err)
+			if !errors.Is(err, net.ErrClosed) {
+				log.Println("Error while reading from the socket", err)
+			}
 			return
 		}
 
